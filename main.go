@@ -12,11 +12,13 @@ type App struct {
 	ColorTexto gui.Color
 }
 
+var app = App{}
+
 func main() {
 	gui.SetTheme(gui.ThemeDark.WithBorders(true))
 
 	w := gui.NewWindow(gui.WindowCfg{
-		State:  &App{},
+		State:  app,
 		Title:  "Pruebas",
 		Width:  400,
 		Height: 300,
@@ -24,15 +26,15 @@ func main() {
 			w.UpdateView(mainView)
 		},
 	})
-	gui.State[App](w).Mensaje = "Hola majete!!"
-	gui.State[App](w).ColorTexto = gui.ColorFromString("#ff9f00")
+	app.Mensaje = "Hola majete!!"
+	app.ColorTexto = gui.ColorFromString("#ff9f00")
 
 	backend.Run(w)
 }
 
 func mainView(w *gui.Window) gui.View {
 	ww, _ := w.WindowSize()
-	app := gui.State[App](w)
+	//app := gui.State[App](w)
 
 	return gui.Column(gui.ContainerCfg{
 		Width:  float32(ww),
