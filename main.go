@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/go-gui-org/go-glyph"
 	"github.com/go-gui-org/go-gui/gui"
 	"github.com/go-gui-org/go-gui/gui/backend"
@@ -10,12 +13,17 @@ type App struct {
 	Nombre     string
 	Mensaje    string
 	ColorTexto gui.Color
+	UrlImage   string
+	FechaT     time.Time
+	FechaS     string
 }
 
 var app = App{}
 
 func main() {
-	gui.SetTheme(gui.ThemeDark.WithBorders(true))
+	gui.SetTheme(gui.ThemeBlue.WithBorders(true))
+
+	app.FechaS = "DD/MM/AAAA"
 
 	w := gui.NewWindow(gui.WindowCfg{
 		State:  app,
@@ -33,13 +41,29 @@ func main() {
 }
 
 func mainView(w *gui.Window) gui.View {
-	ww, _ := w.WindowSize()
-	//app := gui.State[App](w)
+	ww, wh := w.WindowSize()
+	app.UrlImage = "https://images.pexels.com/photos/38014108/pexels-photo-38014108.jpeg"
+	//dimensionesImagen, _ := ObtenerTamaño(app.UrlImage)
+
+	var calendario gui.View
+
+	calendario = gui.InputDate(gui.InputDateCfg{
+		ID:               "due-date",
+		IDFocus:          5,
+		Date:             app.FechaT,
+		Placeholder:      app.FechaS,
+		Sizing:           gui.FillFit,
+		PlaceholderStyle: gui.TextStyle{Color: gui.ColorFromString("#00b4ff")},
+		OnSelect: func(t []time.Time, e *gui.Event, w *gui.Window) {
+			app.FechaS = t[0].Format("02-01-2006")
+			fmt.Println(app.FechaS)
+		},
+	})
 
 	return gui.Column(gui.ContainerCfg{
 		Width:  float32(ww),
-		Height: 300,
-		Sizing: gui.FillFit,
+		Height: float32(wh),
+		Sizing: gui.FillFixed,
 		HAlign: gui.HAlignCenter,
 		VAlign: gui.VAlignTop,
 		Content: []gui.View{
@@ -49,6 +73,7 @@ func mainView(w *gui.Window) gui.View {
 				Sizing:      gui.FillFit,
 				Placeholder: "Mensaje",
 				Text:        app.Nombre,
+				TextStyle:   gui.TextStyle{Color: gui.ColorFromString("#00b4ff")},
 				OnTextChanged: func(l *gui.Layout, s string, w *gui.Window) {
 					app.Nombre = s
 				},
@@ -59,21 +84,28 @@ func mainView(w *gui.Window) gui.View {
 					Size:     24,
 					Color:    app.ColorTexto,
 					Typeface: glyph.TypefaceBold,
-					Align:    gui.TextAlignCenter,
 				},
-				Mode: gui.TextModeWrap,
+				Mode: 2,
 			}),
 			gui.Button(gui.ButtonCfg{
 				Content: []gui.View{
 					gui.Text(gui.TextCfg{Text: "Cambiar texto"}),
 				},
 				OnClick: func(l *gui.Layout, e *gui.Event, w *gui.Window) {
-					app.Mensaje = "Eres un puto gilipollas😂, " + app.Nombre
-					app.ColorTexto = gui.ColorFromString("#48ff00")
+					app.Mensaje = "Eres un puto gilipollas, " + app.Nombre
+					app.ColorTexto = gui.ColorFromString("#b05d14")
 					app.Nombre = ""
 					e.IsHandled = true
 				},
 			}),
+			/* 			gui.Image(gui.ImageCfg{
+				Src:       app.UrlImage,
+				Width:     float32(dimensionesImagen.Anchura) / 10,
+				Height:    float32(dimensionesImagen.Altura) / 10,
+				MaxWidth:  float32(ww) - 10,
+				MaxHeight: float32(wh) - 20,
+			}), */
+			calendario,
 		},
 	})
 }
